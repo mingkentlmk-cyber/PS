@@ -59,18 +59,19 @@
     .handle[data-handle="sw"] { bottom:-6px; left:-6px; cursor:nesw-resize; }
     .handle[data-handle="se"] { bottom:-6px; right:-6px; cursor:nwse-resize; }
     .side { width:266px; flex:none; display:flex; flex-direction:column; background:var(--panel); border-left:1px solid #101113; min-height:0; }
-    .layers-panel { display:flex; flex-direction:column; min-height:0; flex:1; }
+    .layers-panel { display:flex; flex-direction:column; flex:0 1 auto; min-height:0; max-height:calc(100dvh - 110px); }
     .section-title { height:37px; flex:none; display:flex; align-items:center; gap:8px; border-bottom:1px solid #191a1b; padding:0 14px; font-weight:650; }
     .section-title small { color:var(--muted); font-weight:400; }
-    .layers { overflow:auto; flex:1; min-height:110px; }
-    .layers.drop-top { box-shadow:inset 0 3px var(--blue); }
-    .layers.drop-bottom { box-shadow:inset 0 -3px var(--blue); }
+    .layers { overflow-y:auto; overflow-x:hidden; flex:0 1 auto; min-height:0; scrollbar-width:thin; scrollbar-color:#717982 #292b2e; }
+    .layer-drop-line { display:none; position:fixed; z-index:9; height:2px; background:#60bcff; box-shadow:0 0 5px #155e98; pointer-events:none; }
+    .layer-drop-line::before,.layer-drop-line::after { content:""; position:absolute; top:50%; width:6px; height:6px; border-radius:50%; background:#60bcff; transform:translateY(-50%); }
+    .layer-drop-line::before { left:-3px; }
+    .layer-drop-line::after { right:-3px; }
     .empty { margin:22px 15px; color:#aeb2b7; line-height:1.6; }
     .layer { position:relative; display:flex; align-items:center; gap:7px; padding:8px 8px; border-bottom:1px solid #202224; min-height:57px; cursor:pointer; }
+    .layer,.layer * { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
     .layer[draggable="true"] { cursor:grab; }
     .layer.dragging { opacity:.45; }
-    .layer.drop-before { box-shadow:inset 0 3px var(--blue); }
-    .layer.drop-after { box-shadow:inset 0 -3px var(--blue); }
     .layer:hover { background:#383a3e; }
     .layer.selected { background:#33536d; box-shadow:inset 3px 0 var(--blue); }
     .mini { display:grid; place-items:center; width:25px; min-width:25px; height:28px; border:1px solid #505961; border-radius:4px; background:#30353a; color:#b9c2c9; padding:0; }
@@ -83,6 +84,8 @@
     .layer-name { min-width:0; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; touch-action:manipulation; }
     .layer-name small { display:block; color:#bec4c9; font-size:10px; }
     .rename-input { width:100%; min-width:0; padding:3px 5px; border:1px solid var(--blue); border-radius:3px; outline:0; background:#19232d; color:white; font-size:12px; }
+    .rename-input { -webkit-user-select:text; user-select:text; -webkit-touch-callout:default; touch-action:auto; }
+    .mobile-layer-ghost { position:fixed; z-index:12; pointer-events:none; opacity:.9; background:#33536d; border:1px solid var(--blue); border-radius:4px; box-shadow:0 8px 22px #0009; }
     .adjustments-title { min-height:40px; background:#303337; border-top:1px solid #151618; }
     .properties { display:none; flex:none; max-height:min(460px,65dvh); overflow:auto; }
     .side.expanded .properties { display:block; }
@@ -126,19 +129,19 @@
       .workspace { flex-direction:column; }
       .center { min-height:170px; }
       .stage-inner { padding:9px 10px; }
-      .side { width:100%; height:calc(114px + env(safe-area-inset-bottom)); flex-direction:column; border-left:0; border-top:1px solid #161719; padding-bottom:env(safe-area-inset-bottom); }
-      .side:not(.has-layers) { height:calc(73px + env(safe-area-inset-bottom)); }
-      .side.expanded { height:calc(min(395px,57dvh) + env(safe-area-inset-bottom)); }
-      .layers-panel { height:75px; flex:none; }
-      .side:not(.has-layers) .layers-panel { height:34px; }
+      .side { width:100%; height:auto; max-height:calc(min(46dvh,390px,calc(100dvh - 230px)) + env(safe-area-inset-bottom)); flex:0 0 auto; flex-direction:column; overflow:hidden; border-left:0; border-top:1px solid #161719; padding-bottom:env(safe-area-inset-bottom); }
+      .side.expanded { height:calc(min(65dvh,580px,calc(100dvh - 230px)) + env(safe-area-inset-bottom)); max-height:none; }
+      .layers-panel { height:auto; flex:0 1 auto; max-height:none; }
+      .side.expanded .layers-panel { max-height:min(32dvh,300px); }
       .section-title { height:25px; padding:0 9px; }
       .mobile-only { display:inline-flex; }
       .adjustments-title { height:38px; min-height:38px; }
       #editToggle { margin-left:auto; min-height:28px; padding:2px 8px; font-size:12px; }
       .history-button { min-height:25px; width:28px; padding:0; font-size:18px; }
-      .layers { display:flex; align-items:center; gap:6px; overflow-x:auto; overflow-y:hidden; min-height:0; padding:2px 8px; scrollbar-width:none; }
-      .layers::-webkit-scrollbar { display:none; }
-      .layer { flex:0 0 156px; width:156px; height:46px; min-height:0; padding:3px; gap:3px; border:1px solid #484b50; border-radius:4px; }
+      .layers { display:block; max-height:min(38dvh,340px); overflow-y:auto; overflow-x:hidden; min-height:0; padding:3px 8px; scrollbar-width:thin; scrollbar-gutter:stable; }
+      .layers::-webkit-scrollbar { width:6px; }
+      .layers::-webkit-scrollbar-thumb { background:#717982; border-radius:6px; }
+      .layer { width:100%; height:48px; min-height:0; padding:3px; gap:5px; margin-bottom:3px; border:1px solid #484b50; border-radius:4px; touch-action:pan-y; }
       .layer .mini { width:22px; min-width:22px; height:32px; padding:0; }
       .layer .mini svg { width:16px; height:16px; }
       .layer.locked { border-color:#c45d66; }
@@ -200,6 +203,7 @@
     </aside>
   </div>
 </div>
+<div class="layer-drop-line" id="layerDropLine" aria-hidden="true"></div>
 <input type="file" id="fileInput" accept="image/*" multiple>
 <input type="file" id="projectInput" accept=".json,application/json">
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -226,7 +230,7 @@
   const sampleCanvas=document.createElement('canvas'); sampleCanvas.width=sampleCanvas.height=1;
   const sampleCtx=sampleCanvas.getContext('2d',{willReadFrequently:true});
   let layers=[], selectedId=null, nextId=1, viewScale=.25, pointerState=null, draggedLayerId=null;
-  let lastNameTap={id:null,time:0};
+  let lastNameTap={id:null,time:0}, mobileDrag=null, suppressLayerClickUntil=0;
   let history=[], historyIndex=-1, toastTimer, previewURL=null;
   let draftDBPromise, autosaveReady=false, autosaveTimer=0, autosaveBusy=false, autosaveDirty=false, lastSavedDraft='';
   const current=()=>layers.find(l=>l.id===selectedId);
@@ -426,13 +430,23 @@
     layers.splice(at,0,layer);
     return true;
   }
+  function canMoveLayerTo(sourceId,targetId,above) {
+    const from=layers.findIndex(l=>l.id===sourceId), target=layers.findIndex(l=>l.id===targetId);
+    if(from<0||target<0||layers[from].locked) return false;
+    const at=target+(above?1:0);
+    return at!==from&&at!==from+1;
+  }
   function clearLayerDropMarks(includeDragging=true) {
-    const list=$('layers');
-    list.classList.remove('drop-top','drop-bottom');
-    list.querySelectorAll('.drop-before,.drop-after,.dragging').forEach(row=>{
-      row.classList.remove('drop-before','drop-after');
-      if(includeDragging) row.classList.remove('dragging');
-    });
+    $('layerDropLine').style.display='none';
+    if(includeDragging) $('layers').querySelectorAll('.dragging').forEach(row=>row.classList.remove('dragging'));
+  }
+  function showLayerDropLine(targetId,above,y) {
+    if(!canMoveLayerTo(draggedLayerId,targetId,above)) {clearLayerDropMarks(false);return;}
+    const listRect=$('layers').getBoundingClientRect(), line=$('layerDropLine');
+    line.style.left=(listRect.left+9)+'px';
+    line.style.width=Math.max(0,listRect.width-18)+'px';
+    line.style.top=clamp(y,listRect.top,listRect.bottom-2)+'px';
+    line.style.display='block';
   }
   function layerEdgeTarget(event) {
     if(draggedLayerId===null||window.innerWidth<=760||layers.length<2) return null;
@@ -451,6 +465,42 @@
     const sourceId=draggedLayerId, targetId=edge==='top'?layers.at(-1).id:layers[0].id;
     draggedLayerId=null; clearLayerDropMarks();
     if(moveLayerTo(sourceId,targetId,edge==='top')) {selectedId=sourceId;commit();update();}
+  }
+  function mobileTouch(event,id,ended=false) {
+    return [...(ended?event.changedTouches:event.touches)].find(touch=>touch.identifier===id);
+  }
+  function mobileDropTarget(y) {
+    const rows=[...$('layers').querySelectorAll('.layer')];
+    if(!rows.length) return null;
+    for(const row of rows) {
+      const rect=row.getBoundingClientRect();
+      if(y<rect.top+rect.height/2) return {id:Number(row.dataset.layerId),above:true,lineY:rect.top};
+    }
+    const row=rows[rows.length-1];
+    return {id:Number(row.dataset.layerId),above:false,lineY:row.getBoundingClientRect().bottom};
+  }
+  function updateMobileDropPreview() {
+    if(!mobileDrag?.active) return;
+    const target=mobileDropTarget(mobileDrag.y);
+    if(target) showLayerDropLine(target.id,target.above,target.lineY);
+    if(mobileDrag.ghost) mobileDrag.ghost.style.top=(mobileDrag.y-mobileDrag.ghost.offsetHeight/2)+'px';
+  }
+  function mobileDragScroll() {
+    if(!mobileDrag?.active) return;
+    const list=$('layers'), rect=list.getBoundingClientRect(), y=mobileDrag.y;
+    const speed=y<rect.top+30?-9:y>rect.bottom-30?9:0;
+    if(speed&&list.scrollHeight>list.clientHeight) {
+      list.scrollTop+=speed;
+      updateMobileDropPreview();
+    }
+    requestAnimationFrame(mobileDragScroll);
+  }
+  function finishMobileDrag() {
+    if(!mobileDrag) return;
+    clearTimeout(mobileDrag.timer);
+    mobileDrag.ghost?.remove();
+    mobileDrag.row.classList.remove('dragging');
+    mobileDrag=null; draggedLayerId=null; clearLayerDropMarks();
   }
   function renameLayer(id) {
     const layer=layers.find(l=>l.id===id), row=[...$('layers').children].find(node=>node.dataset.layerId===String(id));
@@ -493,11 +543,16 @@
       const thumb=document.createElement('span'); thumb.className='thumb'; const img=document.createElement('img'); img.src=layer.thumb; img.alt=''; img.draggable=false; thumb.append(img);
       const label=document.createElement('span'); label.className='layer-name'; label.textContent=layer.name;
       const detail=document.createElement('small'); detail.textContent=Math.round(layer.w)+' × '+Math.round(layer.h)+' px'; label.append(detail);
-      label.onpointerup=e=>{
+      label.onclick=e=>{
+        if(window.innerWidth>760) return;
+        e.stopPropagation();
         const now=Date.now();
         if(lastNameTap.id===layer.id&&now-lastNameTap.time<420) {
-          e.preventDefault(); e.stopPropagation(); renameLayer(layer.id);
-        } else lastNameTap={id:layer.id,time:now};
+          e.preventDefault(); renameLayer(layer.id);
+        } else {
+          lastNameTap={id:layer.id,time:now};
+          if(selectedId!==layer.id) {selectedId=layer.id;update();}
+        }
       };
       label.ondblclick=e=>{e.preventDefault();e.stopPropagation();renameLayer(layer.id);};
       row.append(thumb,label,eye,lock);
@@ -512,14 +567,13 @@
       row.ondragover=e=>{
         if(draggedLayerId===null||window.innerWidth<=760) return;
         e.preventDefault(); e.dataTransfer.dropEffect='move';
-        clearLayerDropMarks(false);
-        const above=e.clientY<row.getBoundingClientRect().top+row.offsetHeight/2;
-        row.classList.add(above?'drop-before':'drop-after');
+        const rect=row.getBoundingClientRect(), above=e.clientY<rect.top+rect.height/2;
+        showLayerDropLine(layer.id,above,above?rect.top:rect.bottom);
       };
       row.ondrop=e=>{
         if(draggedLayerId===null) return;
         e.preventDefault();
-        const above=e.clientY<row.getBoundingClientRect().top+row.offsetHeight/2;
+        const rect=row.getBoundingClientRect(), above=e.clientY<rect.top+rect.height/2;
         const sourceId=draggedLayerId;
         draggedLayerId=null; clearLayerDropMarks();
         if(moveLayerTo(sourceId,layer.id,above)) {selectedId=sourceId; commit(); update();}
@@ -1005,12 +1059,63 @@
   $('moveUp').onclick=()=>changeOrder(1); $('moveDown').onclick=()=>changeOrder(-1);
   $('centerLayer').onclick=()=>{const l=current();if(!l||l.locked)return;l.x=Math.round((W-l.w)/2);l.y=Math.round((H-l.h)/2);commit();update();};
   $('deleteLayer').onclick=()=>{const l=current();if(!l||l.locked)return;layers=layers.filter(item=>item.id!==selectedId);selectedId=layers.at(-1)?.id??null;commit();update();};
+  const layerList=$('layers');
+  layerList.addEventListener('contextmenu',e=>{
+    if(window.innerWidth<=760&&!e.target.closest('.rename-input')) e.preventDefault();
+  });
+  layerList.addEventListener('click',e=>{
+    if(Date.now()<suppressLayerClickUntil) {e.preventDefault();e.stopImmediatePropagation();}
+  },true);
+  layerList.addEventListener('touchstart',e=>{
+    if(window.innerWidth>760||e.touches.length!==1) return;
+    const row=e.target.closest('.layer');
+    if(!row||e.target.closest('button,.rename-input')) return;
+    const id=Number(row.dataset.layerId);
+    if(layers.find(layer=>layer.id===id)?.locked) return;
+    finishMobileDrag();
+    const touch=e.touches[0], state={id,row,touchId:touch.identifier,x:touch.clientX,y:touch.clientY,active:false,ghost:null,timer:null};
+    mobileDrag=state;
+    state.timer=setTimeout(()=>{
+      if(mobileDrag!==state) return;
+      state.active=true; draggedLayerId=id; lastNameTap={id:null,time:0};
+      const rect=row.getBoundingClientRect(), ghost=row.cloneNode(true);
+      ghost.classList.add('mobile-layer-ghost');
+      ghost.style.left=rect.left+'px'; ghost.style.width=rect.width+'px'; ghost.style.height=rect.height+'px';
+      document.body.append(ghost); state.ghost=ghost;
+      row.classList.add('dragging');
+      updateMobileDropPreview(); requestAnimationFrame(mobileDragScroll);
+    },400);
+  },{passive:true});
+  layerList.addEventListener('touchmove',e=>{
+    if(!mobileDrag) return;
+    const touch=mobileTouch(e,mobileDrag.touchId);
+    if(!touch) return;
+    if(!mobileDrag.active) {
+      if(Math.hypot(touch.clientX-mobileDrag.x,touch.clientY-mobileDrag.y)>9) finishMobileDrag();
+      return;
+    }
+    e.preventDefault(); mobileDrag.y=touch.clientY; updateMobileDropPreview();
+  },{passive:false});
+  layerList.addEventListener('touchend',e=>{
+    if(!mobileDrag||!mobileTouch(e,mobileDrag.touchId,true)) return;
+    if(!mobileDrag.active) {finishMobileDrag();return;}
+    e.preventDefault(); suppressLayerClickUntil=Date.now()+500;
+    const target=mobileDropTarget(mobileTouch(e,mobileDrag.touchId,true).clientY), sourceId=mobileDrag.id;
+    finishMobileDrag();
+    if(target&&moveLayerTo(sourceId,target.id,target.above)) {selectedId=sourceId;commit();update();}
+  },{passive:false});
+  layerList.addEventListener('touchcancel',()=>finishMobileDrag());
   document.addEventListener('dragover',e=>{
+    if(draggedLayerId===null) return;
     const edge=layerEdgeTarget(e);
-    if(!edge) return;
+    if(!edge) {
+      if(!e.target.closest('.layer')) clearLayerDropMarks(false);
+      return;
+    }
     e.preventDefault(); e.dataTransfer.dropEffect='move';
-    clearLayerDropMarks(false);
-    $('layers').classList.add('drop-'+edge);
+    const listRect=$('layers').getBoundingClientRect();
+    const targetId=edge==='top'?layers.at(-1).id:layers[0].id;
+    showLayerDropLine(targetId,edge==='top',edge==='top'?listRect.top:listRect.bottom);
   });
   document.addEventListener('drop',e=>{
     const edge=layerEdgeTarget(e);
