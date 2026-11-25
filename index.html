@@ -87,7 +87,7 @@
     .thumb img { max-width:100%; max-height:100%; object-fit:contain; }
     .layer-name { min-width:0; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; touch-action:manipulation; }
     .layer-name small { display:block; color:#bec4c9; font-size:10px; }
-    .rename-input { width:100%; min-width:0; padding:3px 5px; border:1px solid var(--blue); border-radius:3px; outline:0; background:#19232d; color:white; font-size:12px; }
+    .rename-input { width:100%; min-width:0; padding:3px 5px; border:1px solid var(--blue); border-radius:3px; outline:0; background:#19232d; color:white; font-size:16px; }
     .rename-input { -webkit-user-select:text; user-select:text; -webkit-touch-callout:default; touch-action:auto; }
     .mobile-layer-ghost { position:fixed; z-index:12; pointer-events:none; opacity:.9; background:#33536d; border:1px solid var(--blue); border-radius:4px; box-shadow:0 8px 22px #0009; }
     .adjustments-title { min-height:40px; background:#303337; border-top:1px solid #151618; }
@@ -142,6 +142,11 @@
       .layers { display:flex; align-items:center; gap:5px; flex:1 1 auto; height:56px; max-height:none; overflow-x:auto; overflow-y:hidden; min-width:0; min-height:0; padding:3px 8px; scrollbar-width:none; scrollbar-gutter:auto; }
       .layers::-webkit-scrollbar { display:none; }
       .layer { flex:0 0 160px; width:160px; height:48px; min-height:0; padding:3px; gap:5px; margin:0; border:1px solid #484b50; border-radius:4px; touch-action:pan-x; }
+      .layer.renaming { flex:0 0 100%; width:100%; border-color:var(--blue); }
+      .layer.renaming .thumb,.layer.renaming .mini { display:none; }
+      .layer.renaming .layer-name { flex:1; }
+      .layer.renaming .rename-input { height:37px; padding:5px 9px; }
+      .custom-size input { font-size:16px; }
       .layer .mini { width:22px; min-width:22px; height:32px; padding:0; }
       .layer .mini svg { width:16px; height:16px; }
       .layer.locked { border-color:#c45d66; }
@@ -516,7 +521,8 @@
     lastNameTap={id:null,time:0};
     const label=row.querySelector('.layer-name'), input=document.createElement('input');
     input.className='rename-input'; input.type='text'; input.maxLength=80; input.value=layer.name;
-    row.draggable=false; label.replaceChildren(input);
+    row.draggable=false; row.classList.add('renaming'); label.replaceChildren(input);
+    if(window.innerWidth<=760) row.scrollIntoView({block:'nearest',inline:'nearest'});
     let finished=false;
     const finish=save=>{
       if(finished) return;
