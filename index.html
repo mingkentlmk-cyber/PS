@@ -14,6 +14,7 @@
     button:focus-visible,input:focus-visible { outline:2px solid var(--blue); outline-offset:1px; }
     .app { display:flex; flex-direction:column; height:100dvh; min-height:380px; }
     .top { position:relative; min-height:54px; display:flex; align-items:center; gap:10px; padding:6px 14px; background:#26282b; border-bottom:1px solid #101113; box-shadow:0 1px 0 #393b3e; z-index:2; }
+    .top > button { height:36px; min-height:36px; border-radius:4px; }
     .brand { display:flex; align-items:center; gap:9px; min-width:195px; padding:0; border:0; background:transparent; font-weight:650; white-space:nowrap; text-align:left; }
     .brand:hover { color:#a9d9ff; }
     .ps { display:grid; place-items:center; width:31px; height:31px; color:#80c8ff; background:#112a40; border:1px solid #235781; font-size:18px; font-weight:650; letter-spacing:-1px; }
@@ -67,6 +68,9 @@
     .layer-drop-line::before,.layer-drop-line::after { content:""; position:absolute; top:50%; width:6px; height:6px; border-radius:50%; background:#60bcff; transform:translateY(-50%); }
     .layer-drop-line::before { left:-3px; }
     .layer-drop-line::after { right:-3px; }
+    .layer-drop-line.vertical::before,.layer-drop-line.vertical::after { left:50%; right:auto; transform:translateX(-50%); }
+    .layer-drop-line.vertical::before { top:-3px; }
+    .layer-drop-line.vertical::after { top:auto; bottom:-3px; }
     .empty { margin:22px 15px; color:#aeb2b7; line-height:1.6; }
     .layer { position:relative; display:flex; align-items:center; gap:7px; padding:8px 8px; border-bottom:1px solid #202224; min-height:57px; cursor:pointer; }
     .layer,.layer * { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
@@ -117,13 +121,10 @@
     @media(max-width:760px) {
       .top { flex-wrap:nowrap; gap:4px; padding:5px 6px; min-height:0; }
       .top .spacer { display:none; }
-      .brand { min-width:0; flex:0 0 47px; justify-content:center; font-size:11px; }
+      .brand { justify-content:center; font-size:12px; border:1px solid #505358; background:#383a3e; }
       .brand .ps,.brand small,.brand .canvas-word { display:none; }
       .top #undo,.top #redo { display:none; }
-      .top #addImage,.top #copy,.top #save,.top #projectMenuButton { min-width:0; min-height:35px; padding:5px 2px; font-size:12px; }
-      .top #addImage { flex:1.2; }
-      .top #copy,.top #save { flex:.95; }
-      .top #projectMenuButton { flex:0 0 37px; }
+      .top .brand,.top #addImage,.top #copy,.top #save,.top #projectMenuButton { flex:1 1 0; width:0; min-width:0; height:38px; min-height:38px; padding:0 2px; font-size:12px; }
       .project-label { display:none; }
       .project-dots { display:inline; font-size:20px; line-height:12px; }
       .workspace { flex-direction:column; }
@@ -131,17 +132,16 @@
       .stage-inner { padding:9px 10px; }
       .side { width:100%; height:auto; max-height:calc(min(46dvh,390px,calc(100dvh - 230px)) + env(safe-area-inset-bottom)); flex:0 0 auto; flex-direction:column; overflow:hidden; border-left:0; border-top:1px solid #161719; padding-bottom:env(safe-area-inset-bottom); }
       .side.expanded { height:calc(min(65dvh,580px,calc(100dvh - 230px)) + env(safe-area-inset-bottom)); max-height:none; }
-      .layers-panel { height:auto; flex:0 1 auto; max-height:none; }
-      .side.expanded .layers-panel { max-height:min(32dvh,300px); }
+      .layers-panel { height:56px; flex:none; max-height:none; min-height:0; }
       .section-title { height:25px; padding:0 9px; }
       .mobile-only { display:inline-flex; }
       .adjustments-title { height:38px; min-height:38px; }
-      #editToggle { margin-left:auto; min-height:28px; padding:2px 8px; font-size:12px; }
-      .history-button { min-height:25px; width:28px; padding:0; font-size:18px; }
-      .layers { display:block; max-height:min(38dvh,340px); overflow-y:auto; overflow-x:hidden; min-height:0; padding:3px 8px; scrollbar-width:thin; scrollbar-gutter:stable; }
-      .layers::-webkit-scrollbar { width:6px; }
-      .layers::-webkit-scrollbar-thumb { background:#717982; border-radius:6px; }
-      .layer { width:100%; height:48px; min-height:0; padding:3px; gap:5px; margin-bottom:3px; border:1px solid #484b50; border-radius:4px; touch-action:pan-y; }
+      #editToggle { margin-left:0; min-height:28px; padding:2px 8px; font-size:12px; }
+      #mobileUndo { margin-left:auto; }
+      .history-button { width:31px; min-height:25px; height:25px; flex:none; padding:0; font-size:18px; }
+      .layers { display:flex; align-items:center; gap:5px; flex:1 1 auto; height:56px; max-height:none; overflow-x:auto; overflow-y:hidden; min-width:0; min-height:0; padding:3px 8px; scrollbar-width:none; scrollbar-gutter:auto; }
+      .layers::-webkit-scrollbar { display:none; }
+      .layer { flex:0 0 160px; width:160px; height:48px; min-height:0; padding:3px; gap:5px; margin:0; border:1px solid #484b50; border-radius:4px; touch-action:pan-x; }
       .layer .mini { width:22px; min-width:22px; height:32px; padding:0; }
       .layer .mini svg { width:16px; height:16px; }
       .layer.locked { border-color:#c45d66; }
@@ -167,7 +167,7 @@
 <body>
 <div class="app">
   <header class="top">
-    <button class="brand" id="ratioMenuButton" aria-expanded="false" aria-controls="ratioMenu" title="Canvas aspect ratio"><b class="ps">Ps</b><span><span id="ratioLabel">9:16</span><span class="canvas-word"> Canvas</span><small id="canvasSizeLabel">Transparent PNG · 1080 × 1920</small></span></button>
+    <button class="brand" id="ratioMenuButton" aria-expanded="false" aria-controls="ratioMenu" title="Tap for sizes · double-tap to swap orientation"><b class="ps">Ps</b><span><span id="ratioLabel">9:16</span><span class="canvas-word"> Canvas</span><small id="canvasSizeLabel">Transparent PNG · 1080 × 1920</small></span></button>
     <button class="btn subtle" id="undo" title="Undo Ctrl/⌘ Z">↶ Undo</button>
     <button class="btn subtle" id="redo" title="Redo Ctrl/⌘ Shift Z">↷ Redo</button>
     <button class="btn action" id="addImage">＋ Upload</button>
@@ -184,10 +184,9 @@
     </div>
     <aside class="side">
       <div class="layers-panel">
-        <div class="section-title">Layers<button class="btn mobile-only history-button" id="mobileUndo" title="Undo" aria-label="Undo">↶</button><button class="btn mobile-only history-button" id="mobileRedo" title="Redo" aria-label="Redo">↷</button></div>
         <div class="layers" id="layers"><p class="empty">Upload an image to start</p></div>
       </div>
-      <div class="section-title adjustments-title">Adjustments<button class="btn" id="editToggle" aria-expanded="false" aria-controls="propertiesPanel" aria-label="Expand adjustments" title="Expand adjustments">Open ⌄</button></div>
+      <div class="section-title adjustments-title">Adjustments<button class="btn mobile-only history-button" id="mobileUndo" title="Undo" aria-label="Undo">↶</button><button class="btn mobile-only history-button" id="mobileRedo" title="Redo" aria-label="Redo">↷</button><button class="btn" id="editToggle" aria-expanded="false" aria-controls="propertiesPanel" aria-label="Expand adjustments" title="Expand adjustments">Open ⌄</button></div>
       <div class="properties" id="propertiesPanel">
         <div class="properties-footer">
           <div class="props-buttons"><button class="btn" id="moveUp" title="Move layer up">↑ Up</button><button class="btn" id="moveDown" title="Move layer down">↓ Down</button><button class="btn" id="centerLayer">Center</button><button class="btn" id="deleteLayer">Delete</button></div>
@@ -230,7 +229,7 @@
   const sampleCanvas=document.createElement('canvas'); sampleCanvas.width=sampleCanvas.height=1;
   const sampleCtx=sampleCanvas.getContext('2d',{willReadFrequently:true});
   let layers=[], selectedId=null, nextId=1, viewScale=.25, pointerState=null, draggedLayerId=null;
-  let lastNameTap={id:null,time:0}, mobileDrag=null, suppressLayerClickUntil=0;
+  let lastNameTap={id:null,time:0}, lastRatioTap=0, mobileDrag=null, suppressLayerClickUntil=0;
   let history=[], historyIndex=-1, toastTimer, previewURL=null;
   let draftDBPromise, autosaveReady=false, autosaveTimer=0, autosaveBusy=false, autosaveDirty=false, lastSavedDraft='';
   const current=()=>layers.find(l=>l.id===selectedId);
@@ -440,12 +439,21 @@
     $('layerDropLine').style.display='none';
     if(includeDragging) $('layers').querySelectorAll('.dragging').forEach(row=>row.classList.remove('dragging'));
   }
-  function showLayerDropLine(targetId,above,y) {
+  function showLayerDropLine(targetId,above,position) {
     if(!canMoveLayerTo(draggedLayerId,targetId,above)) {clearLayerDropMarks(false);return;}
     const listRect=$('layers').getBoundingClientRect(), line=$('layerDropLine');
-    line.style.left=(listRect.left+9)+'px';
-    line.style.width=Math.max(0,listRect.width-18)+'px';
-    line.style.top=clamp(y,listRect.top,listRect.bottom-2)+'px';
+    const mobile=window.innerWidth<=760;
+    line.classList.toggle('vertical',mobile);
+    if(mobile) {
+      line.style.left=clamp(position,listRect.left+2,listRect.right-4)+'px';
+      line.style.top=(listRect.top+9)+'px';
+      line.style.width='2px'; line.style.height=Math.max(0,listRect.height-18)+'px';
+    } else {
+      line.style.left=(listRect.left+9)+'px';
+      line.style.width=Math.max(0,listRect.width-18)+'px';
+      line.style.top=clamp(position,listRect.top,listRect.bottom-2)+'px';
+      line.style.height='2px';
+    }
     line.style.display='block';
   }
   function layerEdgeTarget(event) {
@@ -469,28 +477,28 @@
   function mobileTouch(event,id,ended=false) {
     return [...(ended?event.changedTouches:event.touches)].find(touch=>touch.identifier===id);
   }
-  function mobileDropTarget(y) {
+  function mobileDropTarget(x) {
     const rows=[...$('layers').querySelectorAll('.layer')];
     if(!rows.length) return null;
     for(const row of rows) {
       const rect=row.getBoundingClientRect();
-      if(y<rect.top+rect.height/2) return {id:Number(row.dataset.layerId),above:true,lineY:rect.top};
+      if(x<rect.left+rect.width/2) return {id:Number(row.dataset.layerId),above:true,lineX:rect.left};
     }
     const row=rows[rows.length-1];
-    return {id:Number(row.dataset.layerId),above:false,lineY:row.getBoundingClientRect().bottom};
+    return {id:Number(row.dataset.layerId),above:false,lineX:row.getBoundingClientRect().right};
   }
   function updateMobileDropPreview() {
     if(!mobileDrag?.active) return;
-    const target=mobileDropTarget(mobileDrag.y);
-    if(target) showLayerDropLine(target.id,target.above,target.lineY);
-    if(mobileDrag.ghost) mobileDrag.ghost.style.top=(mobileDrag.y-mobileDrag.ghost.offsetHeight/2)+'px';
+    const target=mobileDropTarget(mobileDrag.x);
+    if(target) showLayerDropLine(target.id,target.above,target.lineX);
+    if(mobileDrag.ghost) mobileDrag.ghost.style.left=(mobileDrag.x-mobileDrag.ghost.offsetWidth/2)+'px';
   }
   function mobileDragScroll() {
     if(!mobileDrag?.active) return;
-    const list=$('layers'), rect=list.getBoundingClientRect(), y=mobileDrag.y;
-    const speed=y<rect.top+30?-9:y>rect.bottom-30?9:0;
-    if(speed&&list.scrollHeight>list.clientHeight) {
-      list.scrollTop+=speed;
+    const list=$('layers'), rect=list.getBoundingClientRect(), x=mobileDrag.x;
+    const speed=x<rect.left+30?-9:x>rect.right-30?9:0;
+    if(speed&&list.scrollWidth>list.clientWidth) {
+      list.scrollLeft+=speed;
       updateMobileDropPreview();
     }
     requestAnimationFrame(mobileDragScroll);
@@ -635,16 +643,18 @@
   }
   function applyCanvasSize(w,h) {
     W=w; H=h; canvas.width=w; canvas.height=h;
-    const ratio=w*16===h*9?'9:16':w*4===h*3?'3:4':w===h?'1:1':'Custom';
+    const ratio=w*16===h*9?'9:16':w*9===h*16?'16:9':w*4===h*3?'3:4':w*3===h*4?'4:3':w===h?'1:1':'Custom';
     $('ratioLabel').textContent=ratio;
     $('canvasSizeLabel').textContent=w+' × '+h+' · Transparent';
     $('customWidth').value=w; $('customHeight').value=h;
     resizeView();
   }
-  function setCanvasSize(w,h) {
+  function setCanvasSize(w,h,keepCentered=false) {
     if(!validCanvasSize(w,h)) {message('Use 100–6000 px per side, up to 12 MP');return;}
+    lastRatioTap=0;
     toggleRatioMenu(false);
     if(w===W&&h===H) return;
+    if(keepCentered) for(const layer of layers) {layer.x+=(w-W)/2;layer.y+=(h-H)/2;}
     applyCanvasSize(w,h);
     commit(); update();
     message('Canvas changed to '+w+' × '+h);
@@ -1034,7 +1044,11 @@
   $('fileInput').addEventListener('change',e=>addFiles([...e.target.files]));
   $('projectInput').addEventListener('change',e=>importProject(e.target.files[0]));
   $('projectMenuButton').onclick=()=>toggleProjectMenu($('projectMenu').hidden);
-  $('ratioMenuButton').onclick=()=>toggleRatioMenu($('ratioMenu').hidden);
+  $('ratioMenuButton').onclick=()=>{
+    const now=Date.now();
+    if(now-lastRatioTap<420) {lastRatioTap=0;setCanvasSize(H,W,true);}
+    else {lastRatioTap=now;toggleRatioMenu($('ratioMenu').hidden);}
+  };
   $('ratioMenu').querySelectorAll('[data-ratio]').forEach(button=>button.onclick=()=>{
     const dimensions={'9:16':[1080,1920],'3:4':[1080,1440],'1:1':[1080,1080]};
     setCanvasSize(...dimensions[button.dataset.ratio]);
@@ -1080,7 +1094,7 @@
       state.active=true; draggedLayerId=id; lastNameTap={id:null,time:0};
       const rect=row.getBoundingClientRect(), ghost=row.cloneNode(true);
       ghost.classList.add('mobile-layer-ghost');
-      ghost.style.left=rect.left+'px'; ghost.style.width=rect.width+'px'; ghost.style.height=rect.height+'px';
+      ghost.style.left=rect.left+'px'; ghost.style.top=rect.top+'px'; ghost.style.width=rect.width+'px'; ghost.style.height=rect.height+'px';
       document.body.append(ghost); state.ghost=ghost;
       row.classList.add('dragging');
       updateMobileDropPreview(); requestAnimationFrame(mobileDragScroll);
@@ -1094,13 +1108,13 @@
       if(Math.hypot(touch.clientX-mobileDrag.x,touch.clientY-mobileDrag.y)>9) finishMobileDrag();
       return;
     }
-    e.preventDefault(); mobileDrag.y=touch.clientY; updateMobileDropPreview();
+    e.preventDefault(); mobileDrag.x=touch.clientX; updateMobileDropPreview();
   },{passive:false});
   layerList.addEventListener('touchend',e=>{
     if(!mobileDrag||!mobileTouch(e,mobileDrag.touchId,true)) return;
     if(!mobileDrag.active) {finishMobileDrag();return;}
     e.preventDefault(); suppressLayerClickUntil=Date.now()+500;
-    const target=mobileDropTarget(mobileTouch(e,mobileDrag.touchId,true).clientY), sourceId=mobileDrag.id;
+    const target=mobileDropTarget(mobileTouch(e,mobileDrag.touchId,true).clientX), sourceId=mobileDrag.id;
     finishMobileDrag();
     if(target&&moveLayerTo(sourceId,target.id,target.above)) {selectedId=sourceId;commit();update();}
   },{passive:false});
