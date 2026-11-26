@@ -136,6 +136,7 @@
       .center { min-height:170px; }
       .stage-inner { padding:7px 8px; }
       .side { width:100%; height:auto; max-height:calc(min(46dvh,390px,calc(100dvh - 230px)) + env(safe-area-inset-bottom)); flex:0 0 auto; flex-direction:column; overflow:hidden; border-left:0; border-top:1px solid #161719; padding-bottom:env(safe-area-inset-bottom); }
+      .side.value-editing { position:relative; z-index:7; transform:translateY(calc(-1 * var(--keyboard-inset,0px))); will-change:transform; }
       .side.expanded { height:calc(min(25dvh,210px,calc(100dvh - 260px)) + env(safe-area-inset-bottom)); max-height:none; }
       .layers-panel { height:49px; flex:none; max-height:none; min-height:0; }
       .section-title { height:25px; padding:0 9px; }
@@ -687,6 +688,42 @@
       input.value=value; output.value=l?String(value):'';
     }
   }
+  let valueEditingInput=null;
+  function keepAdjustmentInputVisible() {
+    const input=valueEditingInput;
+    if(!input||document.activeElement!==input) return;
+    const viewport=window.visualViewport;
+    const inset=viewport?Math.max(0,window.innerHeight-viewport.height-viewport.offsetTop):0;
+    side.style.setProperty('--keyboard-inset',Math.round(inset)+'px');
+    requestAnimationFrame(()=>{
+      if(!valueEditingInput) return;
+      const panel=$('propertiesPanel'), row=input.closest('.oprow');
+      if(!row) return;
+      const panelRect=panel.getBoundingClientRect(), rowRect=row.getBoundingClientRect();
+      const visibleTop=panelRect.top+6;
+      const visibleBottom=Math.min(panelRect.bottom,viewport?viewport.offsetTop+viewport.height:window.innerHeight)-8;
+      if(rowRect.bottom>visibleBottom) panel.scrollTop+=rowRect.bottom-visibleBottom;
+      else if(rowRect.top<visibleTop) panel.scrollTop-=visibleTop-rowRect.top;
+    });
+  }
+  function startValueEditing(input) {
+    valueEditingInput=input;
+    side.classList.add('value-editing');
+    keepAdjustmentInputVisible();
+    setTimeout(keepAdjustmentInputVisible,120);
+    setTimeout(keepAdjustmentInputVisible,420);
+  }
+  function stopValueEditing() {
+    setTimeout(()=>{
+      const active=document.activeElement;
+      if(active?.classList.contains('value-input')) {startValueEditing(active);return;}
+      valueEditingInput=null;
+      side.classList.remove('value-editing');
+      side.style.removeProperty('--keyboard-inset');
+    },80);
+  }
+  window.visualViewport?.addEventListener('resize',keepAdjustmentInputVisible);
+  window.visualViewport?.addEventListener('scroll',keepAdjustmentInputVisible);
   function update() { hideGuides(); render(); drawSelection(); renderLayers(); renderProperties(); refreshHistory(); }
   function fitScale() {
     const mobile=window.innerWidth<=760;
@@ -1179,7 +1216,8 @@
     });
   }
   document.querySelectorAll('.value-input').forEach(input=>{
-    input.addEventListener('focus',()=>input.select());
+    input.addEventListener('focus',()=>{input.select();startValueEditing(input);});
+    input.addEventListener('blur',stopValueEditing);
     input.addEventListener('keydown',e=>{
       if(e.key==='Enter') {e.preventDefault();input.blur();}
       if(e.key==='Escape') {e.preventDefault();renderProperties();input.blur();}
