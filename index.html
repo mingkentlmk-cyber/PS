@@ -99,8 +99,9 @@
     .side.expanded .properties { display:block; }
     .properties-footer { padding:0 12px 12px; display:flex; flex-direction:column; gap:9px; }
     .oprow { display:flex; align-items:center; gap:9px; color:#b6bac0; }
-    .oprow input { flex:1; min-width:0; accent-color:var(--blue); }
-    .oprow output { min-width:45px; text-align:right; color:#e2e8ed; font-variant-numeric:tabular-nums; }
+    .oprow input[type="range"] { flex:1; min-width:0; accent-color:var(--blue); }
+    .value-input { flex:none; width:58px; min-width:58px; height:27px; padding:2px 5px; border:1px solid #555b62; border-radius:3px; background:#1d2024; color:#e2e8ed; text-align:right; font-size:12px; font-variant-numeric:tabular-nums; }
+    .value-input::-webkit-inner-spin-button,.value-input::-webkit-outer-spin-button { appearance:none; margin:0; }
     .props-buttons { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:4px; }
     .props-buttons .btn { padding:6px 2px; font-size:11px; }
     .transform-caption { display:flex; align-items:center; justify-content:space-between; min-height:20px; color:#aeb7bf; font-size:11px; }
@@ -146,6 +147,10 @@
       .layers { display:flex; align-items:center; gap:5px; flex:1 1 auto; height:49px; max-height:none; overflow-x:auto; overflow-y:hidden; min-width:0; min-height:0; padding:3px 8px; scrollbar-width:none; scrollbar-gutter:auto; }
       .layers::-webkit-scrollbar { display:none; }
       .layer { flex:0 0 160px; width:160px; height:42px; min-height:0; padding:3px; gap:5px; margin:0; border:1px solid #484b50; border-radius:4px; touch-action:pan-x; }
+      .layers.is-reordering { gap:3px; touch-action:none; }
+      .layers.is-reordering .layer { flex:0 0 78px !important; width:78px !important; min-width:78px !important; max-width:78px !important; height:34px; padding:2px 5px; justify-content:center; }
+      .layers.is-reordering .layer .thumb,.layers.is-reordering .layer .mini,.layers.is-reordering .layer-name small { display:none; }
+      .layers.is-reordering .layer-name { flex:1; text-align:center; font-size:10px; }
       .layer.renaming { flex:0 0 100%; width:100%; border-color:var(--blue); }
       .layer.renaming .thumb,.layer.renaming .mini { display:none; }
       .layer.renaming .layer-name { flex:1; }
@@ -157,6 +162,8 @@
       .thumb { width:29px; height:32px; }
       .layer-name { font-size:11px; }
       .layer-name small { font-size:9px; }
+      .mobile-layer-ghost .thumb,.mobile-layer-ghost .mini,.mobile-layer-ghost .layer-name small { display:none; }
+      .mobile-layer-ghost .layer-name { flex:1; text-align:center; font-size:10px; }
       .empty { white-space:nowrap; font-size:12px; margin:0; }
       .empty br { display:none; }
       .properties { display:none; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; min-height:0; }
@@ -164,6 +171,7 @@
       .properties-footer { padding:5px 9px 8px; gap:4px; }
       .properties .btn { min-height:27px; padding:2px 6px; }
       .props-buttons .btn { min-height:29px; }
+      .value-input { width:56px; min-width:56px; height:27px; font-size:16px; padding:1px 4px; }
       .handle { width:19px; height:19px; }
       .handle[data-handle="nw"] { top:-10px; left:-10px; }
       .handle[data-handle="ne"] { top:-10px; right:-10px; }
@@ -201,13 +209,13 @@
       <div class="properties" id="propertiesPanel">
         <div class="properties-footer">
           <div class="props-buttons"><button class="btn" id="moveUp" title="Move layer up">↑ Up</button><button class="btn" id="moveDown" title="Move layer down">↓ Down</button><button class="btn" id="centerX" title="Center horizontally">Center X</button><button class="btn" id="centerY" title="Center vertically">Center Y</button><button class="btn" id="deleteLayer">Delete</button></div>
-          <label class="oprow transform-slider"><span>Width</span><input type="range" id="wInput"><output id="wValue">0</output></label>
-          <label class="oprow transform-slider"><span>Height</span><input type="range" id="hInput"><output id="hValue">0</output></label>
+          <label class="oprow transform-slider"><span>Width</span><input type="range" id="wInput"><input class="value-input" type="number" id="wValue" min="1" max="20000" step="1" inputmode="numeric" aria-label="Width value"></label>
+          <label class="oprow transform-slider"><span>Height</span><input type="range" id="hInput"><input class="value-input" type="number" id="hValue" min="1" max="20000" step="1" inputmode="numeric" aria-label="Height value"></label>
           <div class="transform-caption">Aspect Ratio <button class="btn" id="aspectLock" aria-label="Unlock aspect ratio" title="Unlock aspect ratio"></button></div>
-          <label class="oprow transform-slider"><span>X</span><input type="range" id="xInput"><output id="xValue">0</output></label>
-          <label class="oprow transform-slider"><span>Y</span><input type="range" id="yInput"><output id="yValue">0</output></label>
-          <label class="oprow transform-slider"><span>Rotation</span><input type="range" id="rotationInput" min="-180" max="180" step="1"><output id="rotationValue">0°</output><button class="btn" id="resetRotation" type="button" title="Reset rotation" aria-label="Reset rotation">Reset</button></label>
-          <label class="oprow">Opacity <input type="range" id="opacity" min="0" max="100" value="100"><span id="opacityValue">100%</span></label>
+          <label class="oprow transform-slider"><span>X</span><input type="range" id="xInput"><input class="value-input" type="number" id="xValue" step="1" inputmode="numeric" aria-label="X value"></label>
+          <label class="oprow transform-slider"><span>Y</span><input type="range" id="yInput"><input class="value-input" type="number" id="yValue" step="1" inputmode="numeric" aria-label="Y value"></label>
+          <label class="oprow transform-slider"><span>Rotation</span><input type="range" id="rotationInput" min="-180" max="180" step="1"><input class="value-input" type="number" id="rotationValue" min="-180" max="180" step="1" inputmode="numeric" aria-label="Rotation value"><button class="btn" id="resetRotation" type="button" title="Reset rotation" aria-label="Reset rotation">Reset</button></label>
+          <label class="oprow">Opacity <input type="range" id="opacity" min="0" max="100" value="100"><input class="value-input" type="number" id="opacityValue" min="0" max="100" step="1" inputmode="numeric" aria-label="Opacity value"></label>
         </div>
       </div>
     </aside>
@@ -341,24 +349,40 @@
     setGuideLines(guidesV,xGuide===null?[]:[xGuide],'left');
     setGuideLines(guidesH,yGuide===null?[]:[yGuide],'top');
   }
-  function showResizeGuides(layer,snapX,snapY) {
+  function showResizeGuides(layer,snapX,snapY,guideX=null,guideY=null) {
     const box=rotatedBounds(layer);
-    const xs=snapX?[...(Math.abs(box.x)<.5?[0]:[]),...(Math.abs(box.x+box.w-W)<.5?[W]:[])]:[];
-    const ys=snapY?[...(Math.abs(box.y)<.5?[0]:[]),...(Math.abs(box.y+box.h-H)<.5?[H]:[])]:[];
+    const xs=snapX?(guideX!==null?[guideX]:[...(Math.abs(box.x)<.5?[0]:[]),...(Math.abs(box.x+box.w-W)<.5?[W]:[])]):[];
+    const ys=snapY?(guideY!==null?[guideY]:[...(Math.abs(box.y)<.5?[0]:[]),...(Math.abs(box.y+box.h-H)<.5?[H]:[])]):[];
     setGuideLines(guidesV,xs,'left'); setGuideLines(guidesH,ys,'top');
   }
+  function otherLayerEdges(movingId,dimension) {
+    const values=new Map();
+    for(const layer of layers) {
+      if(layer.id===movingId||!layer.visible||layer.opacity<=0) continue;
+      const box=rotatedBounds(layer), edges=dimension==='x'?[box.x,box.x+box.w]:[box.y,box.y+box.h];
+      for(const edge of edges) values.set(Math.round(edge*1000),edge);
+    }
+    return [...values.values()];
+  }
   // A wider release range keeps a layer on the center line while it moves along that line.
-  function snapAxis(raw,size,total,axis,drag) {
-    const targets=[
+  function snapAxis(raw,size,total,axis,drag,movingId) {
+    const dimension=axis==='snapX'?'x':'y';
+    const canvasTargets=[
       {key:'middle',value:(total-size)/2,guide:total/2},
       {key:'start',value:0,guide:0},
       {key:'end',value:total-size,guide:total}
     ];
+    const layerTargets=otherLayerEdges(movingId,dimension).flatMap(edge=>[
+      {key:'layer-'+dimension+'-'+Math.round(edge*1000)+'-start',value:edge,guide:edge},
+      {key:'layer-'+dimension+'-'+Math.round(edge*1000)+'-end',value:edge-size,guide:edge}
+    ]);
+    const targets=[...canvasTargets,...layerTargets];
     const active=targets.find(target=>target.key===drag[axis]), closestKey=axis+'Closest', blockedKey=axis+'Blocked';
     if(active&&active.key!=='middle') {
       const closest=drag[closestKey]??raw;
-      drag[closestKey]=active.key==='start'?Math.min(closest,raw):Math.max(closest,raw);
-      const away=(active.key==='start'?raw-drag[closestKey]:drag[closestKey]-raw)*viewScale;
+      if(Math.abs(raw-active.value)<Math.abs(closest-active.value)) drag[closestKey]=raw;
+      else drag[closestKey]=closest;
+      const away=(Math.abs(raw-active.value)-Math.abs(drag[closestKey]-active.value))*viewScale;
       if(away>=EDGE_BREAK_PX) {
         drag[blockedKey]=active.key; drag[axis]=null; drag[closestKey]=null;
         return {value:raw,guide:null};
@@ -369,7 +393,7 @@
     drag[axis]=null;
     drag[closestKey]=null;
     const start=axis==='snapX'?(drag.startBoundsX??drag.original.x):(drag.startBoundsY??drag.original.y);
-    const middleAtEdge=targets.slice(1).some(target=>Math.abs(target.value-targets[0].value)*viewScale<=SNAP_ENTER_PX);
+    const middleAtEdge=canvasTargets.slice(1).some(target=>Math.abs(target.value-canvasTargets[0].value)*viewScale<=SNAP_ENTER_PX);
     const candidates=targets.filter(target=>target.key==='middle'?!middleAtEdge:(target.key!==drag[blockedKey]&&Math.abs(raw-target.value)<Math.abs(start-target.value)));
     const nearest=candidates.reduce((best,target)=>!best||Math.abs(raw-target.value)<Math.abs(raw-best.value)?target:best,null);
     if(nearest&&Math.abs(raw-nearest.value)<=SNAP_ENTER_PX/viewScale) {
@@ -379,13 +403,21 @@
   }
   // A corner moves one screen pixel while the opposite corner moves one pixel back.
   // Snapping compares the moving edge with the artboard border in screen pixels.
-  function snapResizeScale(raw,original,drag) {
+  function snapResizeScale(raw,original,drag,movingId) {
     const cx=original.x+original.w/2, cy=original.y+original.h/2;
     const targets=[
-      {key:'left',scale:2*cx/original.w,axis:'x'},
-      {key:'right',scale:2*(W-cx)/original.w,axis:'x'},
-      {key:'top',scale:2*cy/original.h,axis:'y'},
-      {key:'bottom',scale:2*(H-cy)/original.h,axis:'y'}
+      {key:'left',scale:2*cx/original.w,axis:'x',guide:0},
+      {key:'right',scale:2*(W-cx)/original.w,axis:'x',guide:W},
+      {key:'top',scale:2*cy/original.h,axis:'y',guide:0},
+      {key:'bottom',scale:2*(H-cy)/original.h,axis:'y',guide:H},
+      ...otherLayerEdges(movingId,'x').flatMap(edge=>[
+        {key:'layer-x-'+Math.round(edge*1000)+'-left',scale:2*(cx-edge)/original.w,axis:'x',guide:edge},
+        {key:'layer-x-'+Math.round(edge*1000)+'-right',scale:2*(edge-cx)/original.w,axis:'x',guide:edge}
+      ]),
+      ...otherLayerEdges(movingId,'y').flatMap(edge=>[
+        {key:'layer-y-'+Math.round(edge*1000)+'-top',scale:2*(cy-edge)/original.h,axis:'y',guide:edge},
+        {key:'layer-y-'+Math.round(edge*1000)+'-bottom',scale:2*(edge-cy)/original.h,axis:'y',guide:edge}
+      ])
     ].filter(target=>target.scale>=Math.max(12/original.w,12/original.h));
     const distance=target=>Math.abs(raw-target.scale)*(target.axis==='x'?original.w:original.h)*viewScale/2;
     const active=targets.find(target=>target.key===drag.resizeSnap);
@@ -396,19 +428,27 @@
       if(away>=EDGE_BREAK_PX) {
         drag.resizeBlocked=targets.filter(target=>Math.abs(target.scale-active.scale)*(target.axis==='x'?original.w:original.h)*viewScale/2<=SNAP_ENTER_PX).map(target=>target.key);
         drag.resizeSnap=null; drag.resizeClosest=null;
-        return {scale:raw,axis:null};
+        return {scale:raw,axis:null,guide:null};
       }
-      if(distance(active)<=SNAP_RELEASE_PX) return {scale:active.scale,axis:active.axis};
+      if(distance(active)<=SNAP_RELEASE_PX) return {scale:active.scale,axis:active.axis,guide:active.guide};
     }
     drag.resizeSnap=null;
     drag.resizeClosest=null;
     const candidates=targets.filter(target=>!drag.resizeBlocked?.includes(target.key)&&Math.abs(raw-target.scale)<Math.abs(1-target.scale));
     const nearest=candidates.reduce((best,target)=>!best||distance(target)<distance(best)?target:best,null);
-    if(nearest&&distance(nearest)<=SNAP_ENTER_PX) {drag.resizeSnap=nearest.key;drag.resizeClosest=raw;return {scale:nearest.scale,axis:nearest.axis};}
-    return {scale:raw,axis:null};
+    if(nearest&&distance(nearest)<=SNAP_ENTER_PX) {drag.resizeSnap=nearest.key;drag.resizeClosest=raw;return {scale:nearest.scale,axis:nearest.axis,guide:nearest.guide};}
+    return {scale:raw,axis:null,guide:null};
   }
-  function snapResizeExtent(raw,center,total,axis,drag) {
-    const targets=[{key:'start',value:2*center},{key:'end',value:2*(total-center)}]
+  function snapResizeExtent(raw,center,total,axis,drag,movingId) {
+    const dimension=axis==='resizeX'?'x':'y';
+    const targets=[
+      {key:'start',value:2*center,guide:0},
+      {key:'end',value:2*(total-center),guide:total},
+      ...otherLayerEdges(movingId,dimension).flatMap(edge=>[
+        {key:'layer-'+dimension+'-'+Math.round(edge*1000)+'-start',value:2*(center-edge),guide:edge},
+        {key:'layer-'+dimension+'-'+Math.round(edge*1000)+'-end',value:2*(edge-center),guide:edge}
+      ])
+    ]
       .filter(target=>target.value>=12);
     const distance=target=>Math.abs(raw-target.value)*viewScale/2;
     const active=targets.find(target=>target.key===drag[axis]), closestKey=axis+'Closest', blockedKey=axis+'Blocked';
@@ -419,16 +459,16 @@
       const away=(up?drag[closestKey]-raw:raw-drag[closestKey])*viewScale/2;
       if(away>=EDGE_BREAK_PX) {
         drag[blockedKey]=active.value; drag[axis]=null; drag[closestKey]=null;
-        return {value:raw,snapped:false};
+        return {value:raw,snapped:false,guide:null};
       }
-      if(distance(active)<=SNAP_RELEASE_PX) return {value:active.value,snapped:true};
+      if(distance(active)<=SNAP_RELEASE_PX) return {value:active.value,snapped:true,guide:active.guide};
     }
     drag[axis]=null;
     drag[closestKey]=null;
     const candidates=targets.filter(target=>(drag[blockedKey]===undefined||Math.abs(target.value-drag[blockedKey])*viewScale/2>SNAP_ENTER_PX)&&Math.abs(raw-target.value)<Math.abs(start-target.value));
     const nearest=candidates.reduce((best,target)=>!best||distance(target)<distance(best)?target:best,null);
-    if(nearest&&distance(nearest)<=SNAP_ENTER_PX) {drag[axis]=nearest.key;drag[closestKey]=raw;return {value:nearest.value,snapped:true};}
-    return {value:raw,snapped:false};
+    if(nearest&&distance(nearest)<=SNAP_ENTER_PX) {drag[axis]=nearest.key;drag[closestKey]=raw;return {value:nearest.value,snapped:true,guide:nearest.guide};}
+    return {value:raw,snapped:false,guide:null};
   }
   function moveLayerTo(sourceId,targetId,above) {
     const from=layers.findIndex(l=>l.id===sourceId), target=layers.findIndex(l=>l.id===targetId);
@@ -507,10 +547,14 @@
   function mobileDragScroll() {
     if(!mobileDrag?.active) return;
     const list=$('layers'), rect=list.getBoundingClientRect(), x=mobileDrag.x;
-    const speed=x<rect.left+30?-9:x>rect.right-30?9:0;
+    const edge=82;
+    let speed=0;
+    if(x<rect.left+edge) speed=-clamp(Math.ceil((rect.left+edge-x)/3),6,20);
+    else if(x>rect.right-edge) speed=clamp(Math.ceil((x-(rect.right-edge))/3),6,20);
     if(speed&&list.scrollWidth>list.clientWidth) {
-      list.scrollLeft+=speed;
-      updateMobileDropPreview();
+      const before=list.scrollLeft;
+      list.scrollLeft=clamp(before+speed,0,list.scrollWidth-list.clientWidth);
+      if(list.scrollLeft!==before) updateMobileDropPreview();
     }
     requestAnimationFrame(mobileDragScroll);
   }
@@ -519,6 +563,7 @@
     clearTimeout(mobileDrag.timer);
     mobileDrag.ghost?.remove();
     mobileDrag.row.classList.remove('dragging');
+    $('layers').classList.remove('is-reordering');
     mobileDrag=null; draggedLayerId=null; clearLayerDropMarks();
   }
   function renameLayer(id) {
@@ -610,11 +655,13 @@
     $('editToggle').setAttribute('aria-label',expanded?'Collapse adjustments':'Expand adjustments');
     $('editToggle').title=expanded?'Collapse adjustments':'Expand adjustments';
     $('opacity').disabled=!l||l.locked;
+    $('opacityValue').disabled=!l||l.locked;
     $('opacity').value=l?Math.round(l.opacity*100):100;
-    $('opacityValue').textContent=(l?Math.round(l.opacity*100):100)+'%';
+    $('opacityValue').value=l?Math.round(l.opacity*100):'';
     $('rotationInput').disabled=!l||l.locked;
+    $('rotationValue').disabled=!l||l.locked;
     $('rotationInput').value=l?Math.round(normalizeRotation(l.rotation||0)):0;
-    $('rotationValue').textContent=(l?Math.round(normalizeRotation(l.rotation||0)):0)+'°';
+    $('rotationValue').value=l?Math.round(normalizeRotation(l.rotation||0)):'';
     $('resetRotation').disabled=!l||l.locked||Math.abs(l.rotation||0)<.001;
     syncTransformControls(l);
     const aspectLocked=l?.aspectLocked!==false;
@@ -636,8 +683,8 @@
         input.min=(key==='x'||key==='y')?Math.min(-base,value-base):1;
         input.max=(key==='x'||key==='y')?Math.max(base,value+base):Math.min(20000,Math.max(base*2,Math.ceil(value*1.5)));
       }
-      input.step=1; input.disabled=!l||l.locked;
-      input.value=value; output.textContent=l?String(value):'—';
+      input.step=1; input.disabled=output.disabled=!l||l.locked;
+      input.value=value; output.value=l?String(value):'';
     }
   }
   function update() { hideGuides(); render(); drawSelection(); renderLayers(); renderProperties(); refreshHistory(); }
@@ -932,8 +979,8 @@
     const p=point(e), o=s.original;
     if(s.kind==='move') {
       const box=rotatedBounds(o), offsetX=box.x-o.x, offsetY=box.y-o.y;
-      const x=snapAxis(box.x+p.x-s.start.x,box.w,W,'snapX',s);
-      const y=snapAxis(box.y+p.y-s.start.y,box.h,H,'snapY',s);
+      const x=snapAxis(box.x+p.x-s.start.x,box.w,W,'snapX',s,s.id);
+      const y=snapAxis(box.y+p.y-s.start.y,box.h,H,'snapY',s,s.id);
       l.x=Math.round(x.value-offsetX); l.y=Math.round(y.value-offsetY);
       showGuides(x.guide,y.guide);
     } else {
@@ -944,26 +991,29 @@
       const localDx=dx*c+dy*sn, localDy=-dx*sn+dy*c;
       let w=Math.max(12,o.w+2*localDx*(left?-1:1));
       let h=Math.max(12,o.h+2*localDy*(top?-1:1));
-      let snappedX=false, snappedY=false;
+      let snappedX=false, snappedY=false, resizeGuideX=null, resizeGuideY=null;
       if(e.shiftKey ? l.aspectLocked===false : l.aspectLocked!==false) {
         s.resizeX=s.resizeY=null;
         const rawScale=Math.max(12/Math.min(o.w,o.h),Math.abs(w/o.w-1)>Math.abs(h/o.h-1)?w/o.w:h/o.h);
         const bounds=rotatedBounds(o);
         const snapOriginal={...o,x:cx-bounds.w/2,y:cy-bounds.h/2,w:bounds.w,h:bounds.h};
-        const result=snapResizeScale(rawScale,snapOriginal,s);
+        const result=snapResizeScale(rawScale,snapOriginal,s,s.id);
         w=o.w*result.scale; h=o.h*result.scale;
         snappedX=result.axis==='x'; snappedY=result.axis==='y';
+        resizeGuideX=snappedX?result.guide:null; resizeGuideY=snappedY?result.guide:null;
       } else {
         s.resizeSnap=null;
         if(Math.abs(o.rotation)<.001) {
-          const x=snapResizeExtent(w,cx,W,'resizeX',s), y=snapResizeExtent(h,cy,H,'resizeY',s);
+          const x=snapResizeExtent(w,cx,W,'resizeX',s,s.id), y=snapResizeExtent(h,cy,H,'resizeY',s,s.id);
           w=x.value; h=y.value; snappedX=x.snapped; snappedY=y.snapped;
+          resizeGuideX=x.guide; resizeGuideY=y.guide;
         } else {
           const ac=Math.abs(c), as=Math.abs(sn);
           const extentX=ac*w+as*h, extentY=as*w+ac*h;
-          const x=snapResizeExtent(extentX,cx,W,'resizeX',s);
-          const y=snapResizeExtent(extentY,cy,H,'resizeY',s);
+          const x=snapResizeExtent(extentX,cx,W,'resizeX',s,s.id);
+          const y=snapResizeExtent(extentY,cy,H,'resizeY',s,s.id);
           snappedX=x.snapped; snappedY=y.snapped;
+          resizeGuideX=x.guide; resizeGuideY=y.guide;
           const det=ac*ac-as*as;
           let both=false;
           if(snappedX&&snappedY&&Math.abs(det)>.15) {
@@ -971,8 +1021,8 @@
             if(nextW>=12&&nextH>=12) {w=nextW;h=nextH;both=true;}
           }
           if(!both&&snappedX&&snappedY) {
-            if(Math.abs(x.value-extentX)<=Math.abs(y.value-extentY)) snappedY=false;
-            else snappedX=false;
+            if(Math.abs(x.value-extentX)<=Math.abs(y.value-extentY)) {snappedY=false;resizeGuideY=null;}
+            else {snappedX=false;resizeGuideX=null;}
           }
           if(!both&&snappedX) {
             if(ac>=as) w=Math.max(12,(x.value-as*h)/ac);
@@ -985,7 +1035,7 @@
         }
       }
       l.w=w; l.h=h; l.x=cx-w/2; l.y=cy-h/2;
-      showResizeGuides(l,snappedX,snappedY);
+      showResizeGuides(l,snappedX,snappedY,resizeGuideX,resizeGuideY);
     }
     s.changed=s.changed||l.x!==o.x||l.y!==o.y||l.w!==o.w||l.h!==o.h;
     render(); drawSelection();
@@ -1014,9 +1064,6 @@
     }
     return output;
   }
-  function exportBlob() {
-    return new Promise((resolve,reject)=>fullSizeExportCanvas().toBlob(blob=>blob?resolve(blob):reject(new Error('PNG export failed')),'image/png'));
-  }
   function exportBlobNow(psCompatible=false) {
     // Keep clipboard.write and navigator.share in the same tap, even on iOS Safari.
     const data=fullSizeExportCanvas(psCompatible).toDataURL('image/png').split(',')[1], binary=atob(data), bytes=new Uint8Array(binary.length);
@@ -1035,12 +1082,29 @@
     $('copyPreview').src=previewURL;
     $('copyFallback').classList.add('open');
   }
-  async function savePNG() {
-    try {
-      const blob=await exportBlob(), url=URL.createObjectURL(blob);
-      const link=document.createElement('a'); link.href=url; link.download='canvas_'+W+'x'+H+'.png'; document.body.append(link); link.click(); link.remove();
-      setTimeout(()=>URL.revokeObjectURL(url),60000); message('Saved '+W+' × '+H+' PNG');
-    } catch(e) {message('Save failed. Please try again.');}
+  function downloadPNGBlob(blob) {
+    const url=URL.createObjectURL(blob), link=document.createElement('a');
+    link.href=url; link.download='canvas_'+W+'x'+H+'.png'; document.body.append(link); link.click(); link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+  }
+  function savePNG() {
+    let blob;
+    try {blob=exportBlobNow(false);} catch(e) {message('Save failed. Please try again.');return;}
+    const filename='canvas_'+W+'x'+H+'.png';
+    const file=new File([blob],filename,{type:'image/png'});
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    let canShare=false;
+    try {canShare=!!navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}));} catch(e) {}
+    if(isIOS&&canShare) {
+      navigator.share({files:[file]})
+        .then(()=>message('Image ready for iPhone Photos'))
+        .catch(error=>{
+          if(error?.name==='AbortError') return;
+          downloadPNGBlob(blob); message('Share unavailable. PNG downloaded instead.');
+        });
+      return;
+    }
+    downloadPNGBlob(blob); message('Saved '+W+' × '+H+' PNG');
   }
   function copyPNG() {
     let blob;
@@ -1078,15 +1142,29 @@
     }
     return true;
   }
-  $('opacity').addEventListener('input',e=>{const l=current();if(!l||l.locked)return;l.opacity=Number(e.target.value)/100;$('opacityValue').textContent=e.target.value+'%';render();});
+  $('opacity').addEventListener('input',e=>{const l=current();if(!l||l.locked)return;l.opacity=Number(e.target.value)/100;$('opacityValue').value=e.target.value;render();});
   $('opacity').addEventListener('change',()=>{if(current()){commit();update();}});
+  $('opacityValue').addEventListener('change',e=>{
+    const l=current(), value=Number(e.target.value);
+    if(!l||l.locked||!Number.isFinite(value)) {renderProperties();return;}
+    const next=clamp(value,0,100);
+    if(Math.abs(l.opacity-next/100)>.0001) {l.opacity=next/100;commit();update();}
+    else renderProperties();
+  });
   $('rotationInput').addEventListener('input',e=>{
     const l=current();if(!l||l.locked)return;
     l.rotation=Number(e.target.value);
-    $('rotationValue').textContent=l.rotation+'°';
+    $('rotationValue').value=l.rotation;
     render();drawSelection();
   });
   $('rotationInput').addEventListener('change',()=>{if(current()){commit();update();}});
+  $('rotationValue').addEventListener('change',e=>{
+    const l=current(), value=Number(e.target.value);
+    if(!l||l.locked||!Number.isFinite(value)) {renderProperties();return;}
+    const next=clamp(value,-180,180);
+    if(Math.abs((l.rotation||0)-next)>.001) {l.rotation=next;commit();update();}
+    else renderProperties();
+  });
   $('resetRotation').onclick=()=>{const l=current();if(!l||l.locked||Math.abs(l.rotation||0)<.001)return;l.rotation=0;commit();update();};
   for(const key of ['x','y','w','h']) {
     const input=$(key+'Input');
@@ -1095,7 +1173,19 @@
       else syncTransformControls(current(),false);
     });
     input.addEventListener('change',()=>{if(current()){commit();update();}});
+    $(key+'Value').addEventListener('change',e=>{
+      if(editTransform(key,e.target.value)) {commit();update();}
+      else renderProperties();
+    });
   }
+  document.querySelectorAll('.value-input').forEach(input=>{
+    input.addEventListener('focus',()=>input.select());
+    input.addEventListener('keydown',e=>{
+      if(e.key==='Enter') {e.preventDefault();input.blur();}
+      if(e.key==='Escape') {e.preventDefault();renderProperties();input.blur();}
+      e.stopPropagation();
+    });
+  });
   $('aspectLock').onclick=()=>{const l=current();if(!l||l.locked)return;l.aspectLocked=l.aspectLocked===false;commit();update();};
   $('fileInput').addEventListener('change',e=>addFiles([...e.target.files]));
   $('projectInput').addEventListener('change',e=>importProject(e.target.files[0]));
@@ -1151,6 +1241,7 @@
     state.timer=setTimeout(()=>{
       if(mobileDrag!==state) return;
       state.active=true; draggedLayerId=id; lastNameTap={id:null,time:0};
+      $('layers').classList.add('is-reordering');
       const rect=row.getBoundingClientRect(), ghost=row.cloneNode(true);
       ghost.classList.add('mobile-layer-ghost');
       ghost.style.left=rect.left+'px'; ghost.style.top=rect.top+'px'; ghost.style.width=rect.width+'px'; ghost.style.height=rect.height+'px';
